@@ -6,57 +6,54 @@ import {
   TouchableHighlight
 } from 'react-native'
 
-import Navigation from '../components/Navigation'
-import {Grid, Row, Col} from 'react-native-elements';
+import Icon from 'react-native-vector-icons/Ionicons'
+
+import Sound from 'react-native-sound'
+import { AudioUtils } from 'react-native-audio'
 
 export default class EffectsView extends Component {
+  constructor (props) {
+    super(props)
+
+    this.state = {
+      isPlaying: false,
+      audioPath: AudioUtils.DocumentDirectoryPath + '/test.aac'
+    }
+
+    this.onPlaySoundEffect = this.onPlaySoundEffect.bind(this)
+  }
+
+  onPlaySoundEffect () {
+    // These timeouts are a hacky workaround for some issues with react-native-sound.
+    // See https://github.com/zmxv/react-native-sound/issues/89.
+    setTimeout(() => {
+      let sound = new Sound(this.state.audioPath, '', (error) => {
+        if (error) {
+          console.warn('failed to load the sound', error)
+        }
+      })
+
+      setTimeout(() => {
+        sound.play((success) => {
+          this.setState({ isPlaying: true })
+
+          if (success) {
+            console.warn('successfully finished playing')
+          } else {
+            console.warn('playback failed due to audio decoding errors')
+          }
+        })
+      }, 100)
+    }, 100)
+  }
+
   render () {
     return (
       <View style={styles.container}>
-        <Navigation title='PitchPerfect' />
-        <Grid>
-          <Row>
-            <Col>
-              <TouchableHighlight>
-                <Text>Sound Effect 1</Text>
-              </TouchableHighlight>
-            </Col>
-            <Col>
-              <TouchableHighlight>
-                <Text>Sound Effect 2</Text>
-              </TouchableHighlight>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <TouchableHighlight>
-                <Text>Sound Effect 3</Text>
-              </TouchableHighlight>
-            </Col>
-            <Col>
-              <TouchableHighlight>
-                <Text>Sound Effect 4</Text>
-              </TouchableHighlight>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <TouchableHighlight>
-                <Text>Sound Effect 5</Text>
-              </TouchableHighlight>
-            </Col>
-            <Col>
-              <TouchableHighlight>
-                <Text>Sound Effect 6</Text>
-              </TouchableHighlight>
-            </Col>
-          </Row>
-          <Row>
-            <TouchableHighlight>
-              <Text>Pause</Text>
-            </TouchableHighlight>
-          </Row>
-        </Grid>
+        <TouchableHighlight onPress={this.onPlaySoundEffect}>
+          <Icon name='ios-play' size={80} color='#5856d6' />
+        </TouchableHighlight>
+        <Text>Tap to Play</Text>
       </View>
     )
   }
@@ -64,6 +61,8 @@ export default class EffectsView extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 })
