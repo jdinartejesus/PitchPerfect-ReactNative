@@ -55,7 +55,7 @@ export default class App extends Component {
             style={{backgroundColor: '#c7c7cc'}}
           />
         }
-        style={{paddingTop: 100}}
+        style={{paddingTop: 60}}
       />
     )
   }

@@ -4,15 +4,12 @@ import {
   Text,
   View,
   TouchableHighlight,
-  Image
+  Image,
+  Platform
 } from 'react-native'
 
-import Icon from 'react-native-vector-icons/Ionicons'
-
 import Sound from 'react-native-sound'
-import { AudioUtils } from 'react-native-audio'
-
-import { Grid, Row, Col } from 'react-native-elements';
+import { Grid, Row, Col } from 'react-native-elements'
 
 export default class EffectsView extends Component {
   constructor (props) {
@@ -20,61 +17,113 @@ export default class EffectsView extends Component {
 
     this.state = {
       isPlaying: false,
-      audioPath: AudioUtils.DocumentDirectoryPath + '/test.aac'
+      isLoaded: false
     }
 
-    this.onPlaySoundEffect = this.onPlaySoundEffect.bind(this)
+    this.sound = null
+    this.onPlaySound = this.onPlaySound.bind(this)
+    this.onStopSound = this.onStopSound.bind(this)
   }
 
-  onPlaySoundEffect () {
-    // These timeouts are a hacky workaround for some issues with react-native-sound.
-    // See https://github.com/zmxv/react-native-sound/issues/89.
-    setTimeout(() => {
-      let sound = new Sound(this.state.audioPath, '', (error) => {
-        if (error) {
-          console.warn('failed to load the sound', error)
-        }
-      })
+  componentDidMount () {
+    if (!this.props.audioPath) {
+      return
+    }
 
-      setTimeout(() => {
-        sound.play((success) => {
-          this.setState({ isPlaying: true })
+    const PathWithoutProtocol = this.props.audioPath.replace(/.*?:\/\//g, '')
+    this.sound = new Sound(PathWithoutProtocol, '', (error) => {
+      if (error) {
+        console.warn('failed to load the sound', error)
+      }
 
-          if (success) {
-            console.warn('successfully finished playing')
-          } else {
-            console.warn('playback failed due to audio decoding errors')
-          }
-        })
-      }, 100)
-    }, 100)
+      let isloaded = this.sound.isLoaded()
+      this.setState({isloaded: isloaded})
+    })
+  }
+
+  onHandleEffects (name) {
+    switch (name) {
+      case 'snail':
+        this.sound.setSpeed(0.5)
+        this.onPlaySound()
+        break
+      case 'rabbit':
+        this.sound.setSpeed(2)
+        this.onPlaySound()
+        break
+      case 'chipmunk':
+      case 'vader':
+      case 'echo':
+      case 'reverb':
+        break
+    }
+  }
+
+  onPlaySound () {
+    if (this.state.isPlaying) {
+      console.warn('Sounds is already being played')
+      return
+    }
+
+    this.setState({ isPlaying: true })
+    this.sound.play((success) => {
+      if (!success) {
+        this.setState({ isPlaying: false })
+        console.warn('playback failed due to audio decoding errors')
+      }
+
+      this.setState({ isPlaying: false })
+      console.warn('successfully finished playing')
+    })
+  }
+
+  onStopSound () {
+    if (!this.state.isPlaying) {
+      return
+    }
+
+    this.setState({ isPlaying: false })
+    this.sound.stop()
   }
 
   render () {
+    let buttonIconDesactive = this.state.isPlaying ? styles.buttonIcon : styles.buttonIconDesactive
     return (
       <View style={styles.container}>
         <Grid>
           <Col>
             <Row>
-              <TouchableHighlight>
+              <TouchableHighlight
+                onPress={this.onHandleEffects.bind(this, 'snail')}
+                style={styles.buttonIcon}>
                 <Image
-                  source={require('../assets/images/rabbit.png')}
-                  style={{width: 100, height: 100}}
+                  source={require('../assets/images/snail.png')}
+                  style={styles.icon}
                 />
               </TouchableHighlight>
             </Row>
           </Col>
           <Col>
             <Row>
-              <TouchableHighlight>
+              <TouchableHighlight
+                onPress={this.onHandleEffects.bind(this, 'rabbit')}
+                style={styles.buttonIcon}>
                 <Image
-                  source={require('../assets/images/snail.png')}
-                  style={{width: 100, height: 100}}
+                  source={require('../assets/images/rabbit.png')}
+                  style={styles.icon}
                 />
               </TouchableHighlight>
             </Row>
           </Col>
         </Grid>
+        <TouchableHighlight
+          onPress={this.onStopSound}
+          style={buttonIconDesactive}>
+          <Image
+            source={require('../assets/images/stopButton.png')}
+            style={styles.icon}
+          />
+        </TouchableHighlight>
       </View>
     )
   }
@@ -85,5 +134,20 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  buttonIcon: {
+    flex: 1,
+    opacity: 1
+  },
+  buttonIconDesactive: {
+    flex: 1,
+    opacity: 0.5
+  },
+  icon: {
+    flex: 1,
+    maxWidth: 80,
+    maxHeight: 80,
+    alignSelf: 'center',
+    margin: 10
   }
 })

@@ -73,20 +73,21 @@ export default class RecordView extends Component {
       })
   }
 
-  redirectToEffectsScreen () {
+  redirectToEffectsScreen (filePath) {
     this.props.navigator.push({
-      name: 'effects'
+      name: 'effects',
+      passProps: {
+        audioPath: filePath
+      }
     })
   }
 
   onToggleRecord () {
     if (this.state.recording && !this.state.stoppedRecording) {
-      console.warn('Stop Recording')
       this.stopRecording()
       return
     }
 
-    console.warn('Recording')
     this.startRecording()
   }
 
@@ -126,8 +127,8 @@ export default class RecordView extends Component {
   }
 
   _finishRecording (didSucceed, filePath) {
-    this.setState({ stoppedRecording: didSucceed })
-    this.redirectToEffectsScreen()
+    this.setState({ stoppedRecording: true })
+    this.redirectToEffectsScreen(filePath)
   }
 
   render () {
