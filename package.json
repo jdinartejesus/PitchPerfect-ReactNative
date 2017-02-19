@@ -11,9 +11,7 @@
     "react-native": "0.41.2",
     "react-native-audio": "^3.2.1",
     "react-native-elements": "^0.9.5",
-    "react-native-sound": "^0.8.3",
-    "react-native-vector-icons": "^4.0.0",
-    "react-router-native": "^4.0.0-beta.5"
+    "react-native-sound": "^0.8.3"
   },
   "devDependencies": {
     "babel-jest": "18.0.0",

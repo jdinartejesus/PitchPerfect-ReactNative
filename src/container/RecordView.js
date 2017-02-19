@@ -5,13 +5,10 @@ import {
   View,
   TouchableHighlight,
   Platform,
+  Image,
   PermissionsAndroid
 } from 'react-native'
 
-import Icon from 'react-native-vector-icons/Ionicons'
-import { Link } from 'react-router-native'
-
-import Sound from 'react-native-sound'
 import { AudioRecorder, AudioUtils } from 'react-native-audio'
 
 export default class RecordView extends Component {
@@ -22,21 +19,17 @@ export default class RecordView extends Component {
       recording: false,
       stoppedRecording: false,
       audioPath: AudioUtils.DocumentDirectoryPath + '/test.aac',
-      hasPermission: undefined,
+      hasPermission: undefined
     }
 
     this.onToggleRecord = this.onToggleRecord.bind(this)
-  }
-
-  static contextTypes = {
-    router: React.PropTypes.object.isRequired
   }
 
   componentDidMount () {
     this._checkPermission().then((hasPermission) => {
       this.setState({hasPermission})
 
-      if(!hasPermission) {
+      if (!hasPermission) {
         return
       }
 
@@ -49,7 +42,7 @@ export default class RecordView extends Component {
       AudioRecorder.onFinished = (data) => {
         if (Platform.OS === 'ios') {
            // Android callback comes in the form of a promise instead.
-          this._finishRecording(data.status === "OK", data.audioFileURL)
+          this._finishRecording(data.status === 'OK', data.audioFileURL)
         }
       }
     })
@@ -59,12 +52,12 @@ export default class RecordView extends Component {
     AudioRecorder.prepareRecordingAtPath(audioPath, {
       SampleRate: 22050,
       Channels: 1,
-      AudioQuality: "Low",
-      AudioEncoding: "aac"
+      AudioQuality: 'Low',
+      AudioEncoding: 'aac'
     })
   }
 
-  _checkPermission() {
+  _checkPermission () {
     if (Platform.OS !== 'android') {
       return Promise.resolve(true)
     }
@@ -77,11 +70,13 @@ export default class RecordView extends Component {
     return PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO, rationale)
       .then((result) => {
         return (result === true || result === PermissionsAndroid.RESULTS.GRANTED)
-    })
+      })
   }
 
-  redirectToNextScreen () {
-    return this.context.router.push('/effects/')
+  redirectToEffectsScreen () {
+    this.props.navigator.push({
+      name: 'effects'
+    })
   }
 
   onToggleRecord () {
@@ -90,7 +85,7 @@ export default class RecordView extends Component {
       this.stopRecording()
       return
     }
-    
+
     console.warn('Recording')
     this.startRecording()
   }
@@ -130,9 +125,9 @@ export default class RecordView extends Component {
     }
   }
 
-  _finishRecording(didSucceed, filePath) {
+  _finishRecording (didSucceed, filePath) {
     this.setState({ stoppedRecording: didSucceed })
-    this.redirectToNextScreen()
+    this.redirectToEffectsScreen()
   }
 
   render () {
@@ -152,7 +147,10 @@ export default class RecordView extends Component {
             underlayColor='transparent'
             onPress={this.onToggleRecord}
             >
-            <Icon name='ios-mic' size={80} color='#5856d6' />
+            <Image
+              source={require('../assets/images/recordButton.png')}
+              style={styles.recordButtonIcon}
+            />
           </TouchableHighlight>
           { recordingTextStateUI() }
         </View>
@@ -172,6 +170,10 @@ const styles = StyleSheet.create({
   },
   recordButton: {
     margin: 10
+  },
+  recordButtonIcon: {
+    width: 80,
+    height: 80
   },
   recordText: {
     color: '#5856d6'

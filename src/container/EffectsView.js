@@ -3,13 +3,16 @@ import {
   StyleSheet,
   Text,
   View,
-  TouchableHighlight
+  TouchableHighlight,
+  Image
 } from 'react-native'
 
 import Icon from 'react-native-vector-icons/Ionicons'
 
 import Sound from 'react-native-sound'
 import { AudioUtils } from 'react-native-audio'
+
+import { Grid, Row, Col } from 'react-native-elements';
 
 export default class EffectsView extends Component {
   constructor (props) {
@@ -50,10 +53,28 @@ export default class EffectsView extends Component {
   render () {
     return (
       <View style={styles.container}>
-        <TouchableHighlight onPress={this.onPlaySoundEffect}>
-          <Icon name='ios-play' size={80} color='#5856d6' />
-        </TouchableHighlight>
-        <Text>Tap to Play</Text>
+        <Grid>
+          <Col>
+            <Row>
+              <TouchableHighlight>
+                <Image
+                  source={require('../assets/images/rabbit.png')}
+                  style={{width: 100, height: 100}}
+                />
+              </TouchableHighlight>
+            </Row>
+          </Col>
+          <Col>
+            <Row>
+              <TouchableHighlight>
+                <Image
+                  source={require('../assets/images/snail.png')}
+                  style={{width: 100, height: 100}}
+                />
+              </TouchableHighlight>
+            </Row>
+          </Col>
+        </Grid>
       </View>
     )
   }
