@@ -36,7 +36,7 @@ export default class RecordView extends Component {
       this._prepareRecordingSettings(this.state.audioPath)
 
       AudioRecorder.onProgress = (data) => {
-        this.setState({recording: true})
+        this.setState({ recording: true })
       }
 
       AudioRecorder.onFinished = (data) => {
@@ -102,7 +102,7 @@ export default class RecordView extends Component {
       return
     }
 
-    this.setState({recording: true})
+    this.setState({ recording: true })
 
     try {
       AudioRecorder.startRecording()
@@ -127,7 +127,7 @@ export default class RecordView extends Component {
   }
 
   _finishRecording (didSucceed, filePath) {
-    this.setState({ stoppedRecording: true })
+    this.setState({ stoppedRecording: true, recording: false })
     this.redirectToEffectsScreen(filePath)
   }
 

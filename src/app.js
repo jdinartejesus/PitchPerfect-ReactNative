@@ -50,7 +50,7 @@ export default class App extends Component {
             routeMapper={{
               LeftButton: this.onLeftButton,
               RightButton: this.onRightButton,
-              Title: (route) => { return <Text>{route.title}</Text>}
+              Title: (route) => { return <Text>{route.title}</Text> }
             }}
             style={{backgroundColor: '#c7c7cc'}}
           />

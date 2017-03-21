@@ -1,15 +1,10 @@
 import React, { Component } from 'react'
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableHighlight,
-  Image,
-  Platform
-} from 'react-native'
+import { StyleSheet, View, TouchableHighlight, Image } from 'react-native'
 
-import Sound from 'react-native-sound'
+import { default as Sound } from 'react-native-sound'
 import { Grid, Row, Col } from 'react-native-elements'
+
+import ModalWarning from '../components/modalWarning'
 
 export default class EffectsView extends Component {
   constructor (props) {
@@ -17,7 +12,8 @@ export default class EffectsView extends Component {
 
     this.state = {
       isPlaying: false,
-      isLoaded: false
+      isLoaded: false,
+      modal: false
     }
 
     this.sound = null
@@ -35,13 +31,17 @@ export default class EffectsView extends Component {
       if (error) {
         console.warn('failed to load the sound', error)
       }
-
-      let isloaded = this.sound.isLoaded()
-      this.setState({isloaded: isloaded})
     })
+    // TODO: check when this is set true on lib
+    // let isLoaded = this.sound.isLoaded()
+    // this.setState({ isLoaded })
   }
 
   onHandleEffects (name) {
+    if (!this.props.audioPath) {
+      return
+    }
+
     switch (name) {
       case 'snail':
         this.sound.setSpeed(0.5)
@@ -61,14 +61,16 @@ export default class EffectsView extends Component {
 
   onPlaySound () {
     if (this.state.isPlaying) {
+      this.setState({ modal: true })
       console.warn('Sounds is already being played')
       return
     }
 
+    this.sound.setVolume(1.0)
     this.setState({ isPlaying: true })
     this.sound.play((success) => {
       if (!success) {
-        this.setState({ isPlaying: false })
+        this.setState({ isPlaying: false, modal: true })
         console.warn('playback failed due to audio decoding errors')
       }
 
@@ -87,7 +89,9 @@ export default class EffectsView extends Component {
   }
 
   render () {
-    let buttonIconDesactive = this.state.isPlaying ? styles.buttonIcon : styles.buttonIconDesactive
+    const { isPlaying, isLoaded } = this.state
+    let buttonStopIconDesactive = isPlaying ? styles.buttonIcon : styles.buttonIconDesactive
+    let buttonIconDesactive = isLoaded ? styles.buttonIcon : styles.buttonIconDesactive
     return (
       <View style={styles.container}>
         <Grid>
@@ -95,9 +99,31 @@ export default class EffectsView extends Component {
             <Row>
               <TouchableHighlight
                 onPress={this.onHandleEffects.bind(this, 'snail')}
-                style={styles.buttonIcon}>
+                style={buttonIconDesactive}
+
+                >
                 <Image
                   source={require('../assets/images/snail.png')}
+                  style={styles.icon}
+                />
+              </TouchableHighlight>
+            </Row>
+            <Row>
+              <TouchableHighlight
+                onPress={this.onHandleEffects.bind(this, 'rabbit')}
+                style={buttonIconDesactive}>
+                <Image
+                  source={require('../assets/images/vader.png')}
+                  style={styles.icon}
+                />
+              </TouchableHighlight>
+            </Row>
+            <Row>
+              <TouchableHighlight
+                onPress={this.onHandleEffects.bind(this, 'rabbit')}
+                style={buttonIconDesactive}>
+                <Image
+                  source={require('../assets/images/reverb.png')}
                   style={styles.icon}
                 />
               </TouchableHighlight>
@@ -107,23 +133,46 @@ export default class EffectsView extends Component {
             <Row>
               <TouchableHighlight
                 onPress={this.onHandleEffects.bind(this, 'rabbit')}
-                style={styles.buttonIcon}>
+                style={buttonIconDesactive}>
                 <Image
                   source={require('../assets/images/rabbit.png')}
                   style={styles.icon}
                 />
               </TouchableHighlight>
             </Row>
+            <Row>
+              <TouchableHighlight
+                onPress={this.onHandleEffects.bind(this, 'rabbit')}
+                style={buttonIconDesactive}>
+                <Image
+                  source={require('../assets/images/chipmunk.png')}
+                  style={styles.icon}
+                />
+              </TouchableHighlight>
+            </Row>
+            <Row>
+              <TouchableHighlight
+                onPress={this.onHandleEffects.bind(this, 'rabbit')}
+                style={buttonIconDesactive}>
+                <Image
+                  source={require('../assets/images/echo.png')}
+                  style={styles.icon}
+                />
+              </TouchableHighlight>
+            </Row>
           </Col>
         </Grid>
-        <TouchableHighlight
-          onPress={this.onStopSound}
-          style={buttonIconDesactive}>
-          <Image
-            source={require('../assets/images/stopButton.png')}
-            style={styles.icon}
-          />
-        </TouchableHighlight>
+        <View style={styles.stopButtonView}>
+          <TouchableHighlight
+            onPress={this.onStopSound}
+            style={buttonStopIconDesactive}>
+            <Image
+              source={require('../assets/images/stopButton.png')}
+              style={styles.stopButtonIcon}
+            />
+          </TouchableHighlight>
+        </View>
+        <ModalWarning message="Hello World" visible={this.state.modal} />
       </View>
     )
   }
@@ -132,18 +181,36 @@ export default class EffectsView extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    margin: 10,
     alignItems: 'center',
     justifyContent: 'center'
   },
   buttonIcon: {
     flex: 1,
-    opacity: 1
+    opacity: 1,
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   buttonIconDesactive: {
     flex: 1,
     opacity: 0.5
   },
   icon: {
+    flex: 1,
+    maxWidth: 100,
+    maxHeight: 100,
+    alignSelf: 'center',
+    margin: 10
+  },
+  stopButtonView: {
+    maxHeight: 100,
+    margin: 10,
+    position: 'relative',
+    bottom: 0,
+    left: 0,
+    right: 0
+  },
+  stopButtonIcon: {
     flex: 1,
     maxWidth: 80,
     maxHeight: 80,
